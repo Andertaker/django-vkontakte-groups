@@ -6,8 +6,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
+from vkontakte_api.api import api_call
 from vkontakte_api.decorators import fetch_all
 from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel
+from vkontakte_users.models import User
 
 from .mixins import ParseGroupsMixin, PhotableModelMixin, UserableModelMixin, VideoableModelMixin
 
@@ -163,5 +165,16 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
 
         from vkontakte_groups_statistic.models import fetch_statistic_for_group
         return fetch_statistic_for_group(group=self, *args, **kwargs)
+
+    def fetch_members(self, offset=0, count=1000):
+        response = api_call('groups.getMembers', group_id=self.pk,
+                            fields='first_name,last_name,sex,bdate,country,city',
+                            offset=offset, count=count, v=5.9)
+        users = User.remote.parse_response_users(response, items_field='items')
+        self.members.add(*users)
+
+        return users
+
+
 
 from . import signals
