@@ -103,6 +103,7 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
     is_closed = models.NullBooleanField(u'Флаг закрытой группы')
     is_admin = models.NullBooleanField(u'Пользователь является администратором')
     members_count = models.IntegerField(u'Всего участников', null=True)
+    members_fetched_date = models.DateTimeField(u'Время получения подписчиков', null=True, default=None)
     verified = models.NullBooleanField(u'Флаг официальной группы')
     type = models.CharField(u'Тип объекта', max_length=10, choices=GROUP_TYPE_CHOICES)
 
