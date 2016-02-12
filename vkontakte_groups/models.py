@@ -10,6 +10,7 @@ from vkontakte_api.api import api_call
 from vkontakte_api.decorators import fetch_all
 from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel
 from vkontakte_users.models import User
+from vkontakte_users.signals import users_to_fetch, fetch_users
 
 from .mixins import ParseGroupsMixin, PhotableModelMixin, UserableModelMixin, VideoableModelMixin
 
@@ -172,6 +173,8 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
                             fields='first_name,last_name,sex,bdate,country,city',
                             offset=offset, count=count, v=5.9)
         users = User.remote.parse_response_users(response, items_field='items')
+
+        users_to_fetch.disconnect(receiver=fetch_users) # prevent fetch users work
         self.members.add(*users)
 
         return users
